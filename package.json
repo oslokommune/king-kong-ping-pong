@@ -1,0 +1,18 @@
+{
+  "name": "backend-template",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Julius Pedersen",
+  "license": "MIT",
+  "dependencies": {
+    "@tuuturu/toolbox-node": "^0.0.4",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "axios": "^0.19.2"
+  }
+}
