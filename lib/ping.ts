@@ -11,7 +11,7 @@ export function startPingJob (intervalMillis : number, upstreamURL : string, web
         baseURL: upstreamURL,
         url: '/pong',
         method: 'POST',
-        headers: { apiKey }
+        headers: { apikey: apiKey }
       })
 
       if (previousStatus === 'OK') return
