@@ -3,7 +3,7 @@ import { IncomingWebhook } from '@slack/webhook'
 
 export function startPingJob (intervalMillis : number, upstreamURL : string, webhookURL: string, apiKey: string) {
   const webhook : IncomingWebhook = new IncomingWebhook(webhookURL)
-  let previousStatus : string = 'OK'
+  let previousStatus : string = ''
 
   setInterval(async () => {
     try {
@@ -29,7 +29,10 @@ export function startPingJob (intervalMillis : number, upstreamURL : string, web
 
       previousStatus = problem
 
-      webhook.send(`I'm getting ${problem} when trying to ping myself..`)
+      webhook.send(
+          `<!channel> I'm getting ${problem} when trying to ping myself..\n` +
+          `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" https://kkpp.api-test.oslo.kommune.no/pong\``
+      )
     }
   }, intervalMillis)
 }
