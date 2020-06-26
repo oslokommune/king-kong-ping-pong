@@ -1,0 +1,21 @@
+openapi: 3.0.3
+info:
+  description: "Kong API gateway integration tester"
+  version: "0.0.2"
+  title: "King Kong Ping Pong"
+  contact:
+    name: "Julius Pedersen"
+    email: "developerportal@oslo.kommune.no"
+tags:
+- name: "REST"
+  description: "Entrypoints designed to be used programmatically"
+paths:
+  /pong:
+    post:
+      tags:
+      - REST
+      summary: "Returns 200"
+      description: "Returns 200"
+      responses:
+        200:
+          description: Returns a positive response
