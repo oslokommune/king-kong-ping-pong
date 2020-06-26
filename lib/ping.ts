@@ -31,7 +31,8 @@ export function startPingJob (intervalMillis : number, upstreamURL : string, web
 
       webhook.send(
           `<!channel> I'm getting ${problem} when trying to ping myself..\n` +
-          `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" https://kkpp.api-test.oslo.kommune.no/pong\``
+          `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" https://kkpp.api-test.oslo.kommune.no/pong\`\n` +
+          'Wait! Take this: https://github.oslo.kommune.no/origodigi/kong/blob/master/README.md It will help you on your quest. God speed.'
       )
     }
   }, intervalMillis)
