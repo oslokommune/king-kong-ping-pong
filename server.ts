@@ -13,6 +13,7 @@ const UPSTREAM_URL : string = process.env.UPSTREAM_URL || ''
 const SLACK_WEBHOOK_URL : string = process.env.SLACK_WEBHOOK_URL || ''
 const KONG_API_KEY : string = process.env.KONG_API_KEY || ''
 const TRIES_BEFORE_NOTIFY : string = process.env.TRIES_BEFORE_NOTIFY || '3'
+const AT_CHANNEL : string = process.env.AT_CHANNEL || ''
 
 if (!UPSTREAM_URL) throw new Error('Missing upstream url to itself. Please configure the UPSTREAM_URL env variable')
 if (!SLACK_WEBHOOK_URL) throw new Error('Missing slack webhook URL. Please configure the SLACK_WEBHOOK_URL env variable')
@@ -28,7 +29,8 @@ function runServer(app: express.Application) {
 				UPSTREAM_URL,
 				SLACK_WEBHOOK_URL,
 				KONG_API_KEY,
-				Number.parseInt(TRIES_BEFORE_NOTIFY)
+				Number.parseInt(TRIES_BEFORE_NOTIFY),
+				AT_CHANNEL
 			)
 		}, Number.parseInt(INITIAL_PING_DELAY_MS))
 	})
