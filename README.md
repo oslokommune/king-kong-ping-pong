@@ -10,13 +10,34 @@ A need to test a full integration of Kong arose
 ## Usage
 
 ### Configuration
-The following environment variables are required
+The following environment variables can be configured
 
-`KONG_API_KEY=<an api key generated for a consumer in the API gateway>`
+`KONG_API_KEY` || required <br>
+An API key generated for a consumer in the API gateway.
 
-`SLACK_WEBHOOK_URL=<a Slack webhook URL>`
+`SLACK_WEBHOOK_URL` || required <br>
+A Slack webhook URL.
 
-`UPSTREAM_URL=<the URL the service can reach itself on through the API gateway>`
+`UPSTREAM_URL` || required <br>
+The URL the service can reach itself on through the API gateway.
+
+`AT_CHANNEL` || optional FALSE
+If TRUE, king-kong-ping-pong will notify the channel with @channel on errors
+
+`INITIAL_PING_DELAY_MS` || optional, default 10000 <br>
+The delay until the first request to /pong is sent.
+
+`LOG_LEVEL` || optional, default "info" <br>
+How noisy the log should be
+
+`PING_INTERVAL_MS` || optional, default 5000 <br>
+How often the service should poll itself.
+
+`PORT` || optional, default 3000 <br>
+The port the service should be listening on
+
+`PRETTY_PRINT` || optional, default FALSE <br>
+Decides if the log output should be pretty printed
 
 ### Docker
 1. make build-image
@@ -24,3 +45,6 @@ The following environment variables are required
 
 ### Standalone
 1. make run
+
+## Deployment
+Deployment is done via the [Charts repo](https://github.com/oslokommune/developer-portal-charts)
