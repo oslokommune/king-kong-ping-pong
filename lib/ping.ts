@@ -4,25 +4,20 @@ import { nanoid } from "nanoid"
 
 import { log } from './logging'
 
-export function startPingJob (intervalMillis : number, upstreamURL : string, webhookURL: string, apiKey: string, max_duplicates : number, atChannel : string) {
+export function startPingJob (intervalMillis : number, upstreamURL : string, webhookURL: string, apiKey: string, triesBeforeNotify : number, atChannel : string) {
   const webhook : IncomingWebhook = new IncomingWebhook(webhookURL)
-  let knownStatus : string = ''
-  let previousStatus : string = ''
-  let newStatus : string = ''
-  let duplicateMessages : number = 0
+  let consecutiveErrorCount = 0
+  let errorIsReported = false
 
-  setInterval(async () => {
+  async function ping() {
     const correlationID = nanoid()
-    let msg : string = ''
-    if (atChannel) msg = '<!channel> '
 
     try {
       log.info('Sending request', {
         upstreamURL,
         correlationID,
-        duplicateMessages,
-        knownStatus,
-        previousStatus,
+        consecutiveErrorCount,
+        errorIsReported
       })
 
       await axios.request({
@@ -35,38 +30,48 @@ export function startPingJob (intervalMillis : number, upstreamURL : string, web
         }
       })
 
-      newStatus = 'OK'
-      msg = 'I feel much better now'
+      consecutiveErrorCount = 0
+
+      if (errorIsReported) {
+        reportOk()
+        errorIsReported = false
+      }
     } catch (error) {
-      let problem
+      if (!errorIsReported) {
+        consecutiveErrorCount++
 
-      if (error.response) problem = error.response.status + ''
-      else problem = 'no response'
+        if (consecutiveErrorCount > triesBeforeNotify) {
+          let problem = error.response ? error.response.status + '' : 'no response'
 
-      log.error(error.response.statusText, {
-        upstreamURL,
-        correlationID,
-        status: error.response.status
-      })
-
-      newStatus = problem
-      msg +=
-          `I'm getting ${problem} when trying to ping myself..\n` +
-          `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" ${upstreamURL}/pong\`\n` +
-          'Wait! Take this: https://github.oslo.kommune.no/origodigi/kong/blob/master/README.md It will help you on your quest. God speed.'
+          logError(correlationID, error, problem)
+          reportError(problem);
+          errorIsReported = true
+        }
+      }
     }
+  }
 
-    if (knownStatus === newStatus) return
+  function logError(correlationID: string, error: any, problem: string) {
+    log.error(problem, {
+      upstreamURL,
+      correlationID,
+      status: error.response.status
+    })
+  }
 
-    if (previousStatus !== newStatus) {
-      previousStatus = newStatus
-      duplicateMessages = 0
-    }
-    else duplicateMessages += 1
-
-    if (duplicateMessages !== max_duplicates) return
-
-    knownStatus = newStatus
+  function reportError(problem: string) {
+    let msg =
+        `I'm getting ${problem} when trying to ping myself..\n` +
+        `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" ${upstreamURL}/pong\`\n` +
+        'Wait! Take this: https://github.oslo.kommune.no/origodigi/kong/blob/master/README.md It will help you on your quest. God speed.'
     webhook.send(msg)
+  }
+
+  function reportOk() {
+    webhook.send("I'm feeling better now")
+  }
+
+  setInterval(async () => {
+    await ping()
   }, intervalMillis)
 }
