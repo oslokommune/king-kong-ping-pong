@@ -41,21 +41,20 @@ export function startPingJob (intervalMillis : number, upstreamURL : string, web
         consecutiveErrorCount++
 
         if (consecutiveErrorCount > triesBeforeNotify) {
-          let problem = error.response ? error.response.status + '' : 'no response'
+          let errorResponse = error.response ? error.response.status + '' : 'no response'
 
-          logError(correlationID, error, problem)
-          reportError(problem);
+          logError(correlationID, errorResponse)
+          reportError(errorResponse);
           errorIsReported = true
         }
       }
     }
   }
 
-  function logError(correlationID: string, error: any, problem: string) {
-    log.error(problem, {
+  function logError(correlationID: string, errorResponse: string) {
+    log.error(errorResponse, {
       upstreamURL,
-      correlationID,
-      status: error.response.status
+      correlationID
     })
   }
 
