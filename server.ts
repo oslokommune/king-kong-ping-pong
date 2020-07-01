@@ -13,7 +13,7 @@ const UPSTREAM_URL : string = process.env.UPSTREAM_URL || ''
 const SLACK_WEBHOOK_URL : string = process.env.SLACK_WEBHOOK_URL || ''
 const KONG_API_KEY : string = process.env.KONG_API_KEY || ''
 const TRIES_BEFORE_NOTIFY : string = process.env.TRIES_BEFORE_NOTIFY || '3'
-const AT_CHANNEL : string = process.env.AT_CHANNEL || ''
+const AT_CHANNEL : boolean = process.env.AT_CHANNEL?.toLowerCase() == 'true' || false
 
 if (!UPSTREAM_URL) throw new Error('Missing upstream url to itself. Please configure the UPSTREAM_URL env variable')
 if (!SLACK_WEBHOOK_URL) throw new Error('Missing slack webhook URL. Please configure the SLACK_WEBHOOK_URL env variable')

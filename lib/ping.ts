@@ -4,7 +4,7 @@ import { nanoid } from "nanoid"
 
 import { log } from './logging'
 
-export function startPingJob (intervalMillis : number, upstreamURL : string, webhookURL: string, apiKey: string, triesBeforeNotify : number, atChannel : string) {
+export function startPingJob (intervalMillis : number, upstreamURL : string, webhookURL: string, apiKey: string, triesBeforeNotify : number, atChannel : boolean) {
   const webhook : IncomingWebhook = new IncomingWebhook(webhookURL)
   let consecutiveErrorCount = 0
   let errorIsReported = false

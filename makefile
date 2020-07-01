@@ -15,6 +15,7 @@ init: ## Create .env file for local development
 	@echo "LOG_LEVEL=debug" >> .env
 	@echo "UPSTREAM_URL=http://localhost" >> .env
 	@echo "PORT=3000" >> .env
+	@echo "AT_CHANNEL=false" >> .env
 
 bump:
 	npm version patch
