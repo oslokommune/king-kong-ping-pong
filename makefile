@@ -8,6 +8,14 @@ REPOSITORY=docker.pkg.github.com/oslokommune/king-kong-ping-pong
 help: ## Print this menu
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+init: ## Create .env file for local development
+	@echo "LOG_PRETTY_PRINT=true" > .env
+	@echo "INITIAL_PING_DELAY_MS=1" >> .env
+	@echo "PING_INTERVAL_MS=1000" >> .env
+	@echo "LOG_LEVEL=debug" >> .env
+	@echo "UPSTREAM_URL=http://localhost" >> .env
+	@echo "PORT=3000" >> .env
+
 bump:
 	npm version patch
 
@@ -19,6 +27,7 @@ build-image:
 push-image:
 	docker push ${REPOSITORY}/${NAME}:${VERSION}
 	docker push ${REPOSITORY}/${NAME}:latest
+
 run-image:
 	docker run --rm \
 		--publish "3000:3000" \
