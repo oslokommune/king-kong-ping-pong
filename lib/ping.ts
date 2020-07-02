@@ -127,6 +127,8 @@ export function startPingJob (
     }
   }
 
+  log.info('Application started')
+
   setInterval(async () => {
     await ping()
   }, intervalMillis)
