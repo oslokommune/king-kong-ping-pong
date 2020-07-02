@@ -8,6 +8,7 @@ import { startPingJob } from "./lib/ping";
 
 const PORT : string = process.env.PORT || '3000'
 const PING_INTERVAL_MS : string = process.env.PING_INTERVAL_MS || '5000'
+const PING_TIMEOUT_MS : string = process.env.PING_TIMEOUT_MS || '10000'
 const INITIAL_PING_DELAY_MS : string = process.env.INITIAL_PING_DELAY_MS || '10000'
 const UPSTREAM_URL : string = process.env.UPSTREAM_URL || ''
 const SLACK_WEBHOOK_URL : string = process.env.SLACK_WEBHOOK_URL || ''
@@ -26,6 +27,7 @@ function runServer(app: express.Application) {
 		setTimeout(() => {
 			startPingJob(
 				Number.parseInt(PING_INTERVAL_MS),
+				Number.parseInt(PING_TIMEOUT_MS),
 				UPSTREAM_URL,
 				SLACK_WEBHOOK_URL,
 				KONG_API_KEY,

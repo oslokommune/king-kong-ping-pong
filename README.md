@@ -27,6 +27,9 @@ If TRUE, king-kong-ping-pong will notify the channel with @channel on errors
 `INITIAL_PING_DELAY_MS` || optional, default 10000 <br>
 The delay until the first request to /pong is sent.
 
+`PING_TIMEOUT_MS` || optional, default 10000 <br>
+How long to wait for a response from /pong. A timeout accounts for one error.
+
 `LOG_LEVEL` || optional, default "info" <br>
 How noisy the log should be
 
@@ -36,8 +39,11 @@ How often the service should poll itself.
 `PORT` || optional, default 3000 <br>
 The port the service should be listening on
 
-`PRETTY_PRINT` || optional, default FALSE <br>
+`LOG_PRETTY_PRINT` || optional, default FALSE <br>
 Decides if the log output should be pretty printed
+
+`LOG_SIMPLE_LOGGING` || optional, default FALSE <br>
+Decides if the log output should be a simpler version of production log. Useful for developing. 
 
 ### Docker
 1. make build-image
