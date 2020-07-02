@@ -40,7 +40,8 @@ export function startPingJob (
       })
 
       log.info("OK", {
-        status: response.status
+        status: response.status,
+        correlationID
       })
 
       consecutiveErrorCount = 0
