@@ -18,12 +18,13 @@ export function startPingJob (
   let errorIsReported = false
 
   async function ping() {
-    const correlationID = nanoid()
+    const itasCorrelationId = nanoid()
 
     try {
-      log.info('Sending request', {
+      log.info("", {
+        itasCorrelationId,
+        name: 'Sending request',
         upstreamURL,
-        correlationID,
         consecutiveErrorCount,
         errorIsReported
       })
@@ -34,14 +35,14 @@ export function startPingJob (
         method: 'POST',
         headers: {
           apikey: apiKey,
-          'x-itas-correlation-id': correlationID
+          'x-itas-correlation-id': itasCorrelationId
         },
         timeout: pingTimeoutMillis
       })
 
-      log.info("OK", {
-        status: response.status,
-        correlationID
+      log.info(response.status.toString(), {
+        itasCorrelationId,
+        name: "Response OK"
       })
 
       consecutiveErrorCount = 0
@@ -65,14 +66,15 @@ export function startPingJob (
 
     function logError(error:any) {
       if (error.code === 'ECONNABORTED') { // Timeout
-        log.error(error.message, { // Ex: "timeout of 8000ms exceeded"
-          correlationID
+        log.error("", { // Ex: "timeout of 8000ms exceeded"
+          itasCorrelationId,
+          name: error.message
         })
       } else {
         let errorMessage = getErrorMessage(error);
-        log.error(errorMessage, {
-          correlationID,
-          status: error.response.status
+        log.error(error.response.status, {
+          itasCorrelationId,
+          name: errorMessage
         })
       }
     }
@@ -85,9 +87,9 @@ export function startPingJob (
     }
 
     async function reportError(error: any) {
-      log.error("Notifying slack", {
-        correlationID,
-        status: error.response.status,
+      log.error(error.response.status, {
+        itasCorrelationId,
+        name: "Notifying slack",
         upstreamURL
       })
 
@@ -108,17 +110,10 @@ export function startPingJob (
       try {
         await webhook.send(msg)
       } catch (err) {
-        // If slack webhook fails, the error will a TypeError
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
-        if (err.message === "Cannot read property 'replace' of null") {
-          log.error("Webhook send failed", {
-            correlationID
-          })
-        } else {
-          log.error(err, {
-            correlationID
-          })
-        }
+        log.error({
+          itasCorrelationId,
+          name: "Webhook send failed. Details: " + err.message ? err.message : "(no details)"
+        })
       }
     }
 
@@ -127,7 +122,8 @@ export function startPingJob (
     }
   }
 
-  log.info('Application started', {
+  log.info("", {
+    name: 'Application started',
     pingTimeoutMillis
   })
 
