@@ -13,7 +13,7 @@ export async function createApp () {
   })
 
   app.post('/pong', (req : express.Request, res : express.Response) => {
-    res.status(502).end()
+    res.status(200).end()
   })
 
   app.use((err : express.Errback, req : express.Request, res : express.Response) => {
