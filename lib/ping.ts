@@ -36,7 +36,7 @@ export function startPingJob (
           apikey: apiKey,
           'x-itas-correlation-id': correlationID
         },
-        timeout: 100
+        timeout: pingTimeoutMillis
       })
 
       log.info("OK", {
@@ -127,7 +127,9 @@ export function startPingJob (
     }
   }
 
-  log.info('Application started')
+  log.info('Application started', {
+    pingTimeoutMillis
+  })
 
   setInterval(async () => {
     await ping()
