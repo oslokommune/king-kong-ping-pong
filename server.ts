@@ -13,7 +13,7 @@ const INITIAL_PING_DELAY_MS : string = process.env.INITIAL_PING_DELAY_MS || '100
 const UPSTREAM_URL : string = process.env.UPSTREAM_URL || ''
 const SLACK_WEBHOOK_URL : string = process.env.SLACK_WEBHOOK_URL || ''
 const KONG_API_KEY : string = process.env.KONG_API_KEY || ''
-const TRIES_BEFORE_NOTIFY : string = process.env.TRIES_BEFORE_NOTIFY || '3'
+const ERRORS_BEFORE_NOTIFY : string = process.env.ERRORS_BEFORE_NOTIFY || '3'
 const AT_CHANNEL : boolean = process.env.AT_CHANNEL?.toLowerCase() == 'true' || false
 
 if (!UPSTREAM_URL) throw new Error('Missing upstream url to itself. Please configure the UPSTREAM_URL env variable')
@@ -31,7 +31,7 @@ function runServer(app: express.Application) {
 				UPSTREAM_URL,
 				SLACK_WEBHOOK_URL,
 				KONG_API_KEY,
-				Number.parseInt(TRIES_BEFORE_NOTIFY),
+				Number.parseInt(ERRORS_BEFORE_NOTIFY),
 				AT_CHANNEL
 			)
 		}, Number.parseInt(INITIAL_PING_DELAY_MS))

@@ -10,7 +10,7 @@ export function startPingJob (
     upstreamURL : string,
     webhookURL: string,
     apiKey: string,
-    triesBeforeNotify : number,
+    errosBeforeNotify : number,
     atChannel : boolean)
 {
   const webhook : IncomingWebhook = new IncomingWebhook(webhookURL)
@@ -42,6 +42,7 @@ export function startPingJob (
 
       log.info(response.status.toString(), {
         itasCorrelationId,
+        consecutiveErrorCount,
         name: "Response OK"
       })
 
@@ -52,12 +53,11 @@ export function startPingJob (
         errorIsReported = false
       }
     } catch (error) {
+      consecutiveErrorCount++
       logError(error);
 
       if (!errorIsReported) {
-        consecutiveErrorCount++
-
-        if (consecutiveErrorCount > triesBeforeNotify) {
+        if (consecutiveErrorCount > errosBeforeNotify) {
           await reportError(error);
           errorIsReported = true
         }
@@ -66,14 +66,20 @@ export function startPingJob (
 
     function logError(error:any) {
       if (error.code === 'ECONNABORTED') { // Timeout
-        log.error("", { // Ex: "timeout of 8000ms exceeded"
+        log.error("", {
           itasCorrelationId,
-          name: error.message
+          errorIsReported,
+          consecutiveErrorCount,
+          errosBeforeNotify,
+          name: error.message  // Ex: "timeout of 8000ms exceeded"
         })
       } else {
         let errorMessage = getErrorMessage(error);
         log.error(error.response.status, {
           itasCorrelationId,
+          errorIsReported,
+          consecutiveErrorCount,
+          errosBeforeNotify,
           name: errorMessage
         })
       }
@@ -89,7 +95,7 @@ export function startPingJob (
     async function reportError(error: any) {
       log.error(error.response.status, {
         itasCorrelationId,
-        name: "Notifying slack",
+        name: "Notifying slack about error",
         upstreamURL
       })
 
@@ -103,6 +109,12 @@ export function startPingJob (
     }
 
     async function reportOk() {
+      log.info("", {
+        itasCorrelationId,
+        name: "Notifying slack that everything's fine again",
+        upstreamURL
+      })
+
       await webhookSend(getAtChannel() + "I'm feeling better now")
     }
 
@@ -124,7 +136,11 @@ export function startPingJob (
 
   log.info("", {
     name: 'Application started',
-    pingTimeoutMillis
+    intervalMillis,
+    pingTimeoutMillis,
+    upstreamURL,
+    errosBeforeNotify,
+    atChannel
   })
 
   setInterval(async () => {

@@ -43,7 +43,13 @@ The port the service should be listening on
 Decides if the log output should be pretty printed
 
 `LOG_SIMPLE_LOGGING` || optional, default FALSE <br>
-Decides if the log output should be a simpler version of production log. Useful for developing. 
+Decides if the log output should be a simpler version of production log. Useful for developing.
+
+`ERRORS_BEFORE_NOTIFY` || optional, default 3 <br>
+How many errors can happen before a Slack notification is sent. If value is `3`, then if three consecutive requests
+fail (three errors with no successes in between), the fourth consecutive error will result in a failure report to the
+Slack webhook.   
+ 
 
 ### Docker
 1. make build-image
