@@ -93,7 +93,7 @@ export function startPingJob (
     }
 
     async function reportError(error: any) {
-      log.error(error.response.status, {
+      log.error("", {
         itasCorrelationId,
         name: "Notifying slack about error",
         upstreamURL
