@@ -4,76 +4,144 @@ import { nanoid } from "nanoid"
 
 import { log } from './logging'
 
-export function startPingJob (intervalMillis : number, upstreamURL : string, webhookURL: string, apiKey: string, triesBeforeNotify : number, atChannel : boolean) {
+export function startPingJob (
+    intervalMillis: number,
+    pingTimeoutMillis: number,
+    upstreamURL : string,
+    webhookURL: string,
+    apiKey: string,
+    errosBeforeNotify : number,
+    atChannel : boolean)
+{
   const webhook : IncomingWebhook = new IncomingWebhook(webhookURL)
   let consecutiveErrorCount = 0
   let errorIsReported = false
 
   async function ping() {
-    const correlationID = nanoid()
+    const itasCorrelationId = nanoid()
 
     try {
-      log.info('Sending request', {
+      log.info("", {
+        itasCorrelationId,
+        name: 'Sending request',
         upstreamURL,
-        correlationID,
         consecutiveErrorCount,
         errorIsReported
       })
 
-      await axios.request({
+      let response = await axios.request({
         baseURL: upstreamURL,
         url: '/pong',
         method: 'POST',
         headers: {
           apikey: apiKey,
-          'x-itas-correlation-id': correlationID
-        }
+          'x-itas-correlation-id': itasCorrelationId
+        },
+        timeout: pingTimeoutMillis
+      })
+
+      log.info(response.status.toString(), {
+        itasCorrelationId,
+        consecutiveErrorCount,
+        name: "Response OK"
       })
 
       consecutiveErrorCount = 0
 
       if (errorIsReported) {
-        reportOk()
+        await reportOk()
         errorIsReported = false
       }
     } catch (error) {
+      consecutiveErrorCount++
+      logError(error);
+
       if (!errorIsReported) {
-        consecutiveErrorCount++
-
-        if (consecutiveErrorCount > triesBeforeNotify) {
-          let errorResponse = error.response ? error.response.status + '' : 'no response'
-
-          logError(correlationID, errorResponse)
-          reportError(errorResponse);
+        if (consecutiveErrorCount > errosBeforeNotify) {
+          await reportError(error);
           errorIsReported = true
         }
       }
     }
+
+    function logError(error:any) {
+      if (error.code === 'ECONNABORTED') { // Timeout
+        log.error("", {
+          itasCorrelationId,
+          errorIsReported,
+          consecutiveErrorCount,
+          errosBeforeNotify,
+          name: error.message  // Ex: "timeout of 8000ms exceeded"
+        })
+      } else {
+        let errorMessage = getErrorMessage(error);
+        log.error(error.response.status, {
+          itasCorrelationId,
+          errorIsReported,
+          consecutiveErrorCount,
+          errosBeforeNotify,
+          name: errorMessage
+        })
+      }
+    }
+
+    function getErrorMessage(error:any) {
+      let errorMessage = "(no response message)"
+      if (error.response && error.response.message)
+        errorMessage = error.response.message
+      return errorMessage;
+    }
+
+    async function reportError(error: any) {
+      log.error("", {
+        itasCorrelationId,
+        name: "Notifying slack about error",
+        upstreamURL
+      })
+
+      let errorMessage = getErrorMessage(error);
+      let msg =
+          getAtChannel() +
+          `I'm getting ${error.response.status} when trying to ping myself. Response: ${errorMessage}\n` +
+          `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" ${upstreamURL}/pong\`\n` +
+          'Wait! Take this: https://github.oslo.kommune.no/origodigi/kong/blob/master/README.md It will help you on your quest. God speed.'
+      await webhookSend(msg)
+    }
+
+    async function reportOk() {
+      log.info("", {
+        itasCorrelationId,
+        name: "Notifying slack that everything's fine again",
+        upstreamURL
+      })
+
+      await webhookSend(getAtChannel() + "I'm feeling better now")
+    }
+
+    async function webhookSend(msg: string) {
+      try {
+        await webhook.send(msg)
+      } catch (err) {
+        log.error({
+          itasCorrelationId,
+          name: "Webhook send failed. Details: " + err.message ? err.message : "(no details)"
+        })
+      }
+    }
+
+    function getAtChannel() {
+      return atChannel ? '<!channel> ' : ''
+    }
   }
 
-  function logError(correlationID: string, errorResponse: string) {
-    log.error(errorResponse, {
-      upstreamURL,
-      correlationID
-    })
-  }
-
-  function reportError(problem: string) {
-    let msg =
-        getAtChannel() +
-        `I'm getting ${problem} when trying to ping myself..\n` +
-        `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" ${upstreamURL}/pong\`\n` +
-        'Wait! Take this: https://github.oslo.kommune.no/origodigi/kong/blob/master/README.md It will help you on your quest. God speed.'
-    webhook.send(msg)
-  }
-
-  function reportOk() {
-    webhook.send(getAtChannel() + "I'm feeling better now")
-  }
-
-  function getAtChannel() {
-    return atChannel ? '<!channel> ' : ''
-  }
+  log.info("", {
+    name: 'Application started',
+    intervalMillis,
+    pingTimeoutMillis,
+    upstreamURL,
+    errosBeforeNotify,
+    atChannel
+  })
 
   setInterval(async () => {
     await ping()

@@ -16,6 +16,7 @@ init: ## Create .env file for local development
 	@echo "UPSTREAM_URL=http://localhost" >> .env
 	@echo "PORT=3000" >> .env
 	@echo "AT_CHANNEL=false" >> .env
+	@echo "PING_TIMEOUT_MS=1000" >> .env
 
 bump:
 	npm version patch

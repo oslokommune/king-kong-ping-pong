@@ -1,5 +1,4 @@
 import express from 'express'
-import { requestLogMiddleware } from './logging'
 
 export async function createApp () {
   const app : express.Application = express()
@@ -13,13 +12,11 @@ export async function createApp () {
     res.sendStatus(200)
   })
 
-  app.use(requestLogMiddleware)
-
   app.post('/pong', (req : express.Request, res : express.Response) => {
     res.status(200).end()
   })
 
-  app.use((err : express.Errback, req : express.Request, res : express.Response, next : express.NextFunction) => {
+  app.use((err : express.Errback, req : express.Request, res : express.Response) => {
     console.error('Something bad happened', err)
     res.status(500).end()
   })
