@@ -1,4 +1,4 @@
-FROM node:12.14.1-alpine3.9 AS dependencies
+FROM node:12.18.2-stretch AS dependencies
 
 WORKDIR /app
 RUN chown node:node /app
