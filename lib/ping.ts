@@ -35,7 +35,8 @@ export function startPingJob (
         method: 'POST',
         headers: {
           apikey: apiKey,
-          'x-itas-correlation-id': itasCorrelationId
+          'x-itas-correlation-id': itasCorrelationId,
+					authorization: 'Bearer dummystringwithlotsofsecrets'
         },
         timeout: pingTimeoutMillis
       })
