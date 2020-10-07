@@ -24,7 +24,7 @@ export function startPingJob (
       log.info("", {
         itasCorrelationId,
         name: 'Sending request',
-        upstreamURL,
+        url: upstreamURL + '/pong',
         consecutiveErrorCount,
         errorIsReported
       })
@@ -103,6 +103,7 @@ export function startPingJob (
       let msg =
           getAtChannel() +
           `I'm getting ${error.response.status} when trying to ping myself. Response: ${errorMessage}\n` +
+          `itasCorrelationId: ${itasCorrelationId}\n` +
           `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" ${upstreamURL}/pong\`\n` +
           'Wait! Take this: https://github.oslo.kommune.no/origodigi/kong/blob/master/README.md It will help you on your quest. God speed.'
       await webhookSend(msg)
