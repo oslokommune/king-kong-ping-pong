@@ -19,19 +19,19 @@ export function startPingJob (
 
   async function ping() {
     const itasCorrelationId = nanoid()
+    const url = upstreamURL + '/pong'
 
     try {
       log.info("", {
         itasCorrelationId,
         name: 'Sending request',
-        upstreamURL,
+        url,
         consecutiveErrorCount,
         errorIsReported
       })
 
       let response = await axios.request({
-        baseURL: upstreamURL,
-        url: '/pong',
+        url,
         method: 'POST',
         headers: {
           apikey: apiKey,
@@ -104,6 +104,7 @@ export function startPingJob (
       let msg =
           getAtChannel() +
           `I'm getting ${error.response.status} when trying to ping myself. Response: ${errorMessage}\n` +
+          `itasCorrelationId: ${itasCorrelationId}\n` +
           `Maybe someone else wants to try: \`curl -X "POST" -H "apikey: ${apiKey}" ${upstreamURL}/pong\`\n` +
           'Wait! Take this: https://github.oslo.kommune.no/origodigi/kong/blob/master/README.md It will help you on your quest. God speed.'
       await webhookSend(msg)
