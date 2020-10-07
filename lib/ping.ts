@@ -19,19 +19,19 @@ export function startPingJob (
 
   async function ping() {
     const itasCorrelationId = nanoid()
+    const url = upstreamURL + '/pong'
 
     try {
       log.info("", {
         itasCorrelationId,
         name: 'Sending request',
-        url: upstreamURL + '/pong',
+        url,
         consecutiveErrorCount,
         errorIsReported
       })
 
       let response = await axios.request({
-        baseURL: upstreamURL,
-        url: '/pong',
+        url,
         method: 'POST',
         headers: {
           apikey: apiKey,
