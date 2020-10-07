@@ -13,10 +13,14 @@ init: ## Create .env file for local development
 	@echo "INITIAL_PING_DELAY_MS=1" >> .env
 	@echo "PING_INTERVAL_MS=1000" >> .env
 	@echo "LOG_LEVEL=debug" >> .env
-	@echo "UPSTREAM_URL=http://localhost" >> .env
+	@echo "UPSTREAM_URL=http://localhost:3000" >> .env
 	@echo "PORT=3000" >> .env
 	@echo "AT_CHANNEL=false" >> .env
 	@echo "PING_TIMEOUT_MS=1000" >> .env
+	@echo "SLACK_WEBHOOK_URL=TODO_SET_ME" >> .env
+	@echo "KONG_API_KEY=TODO_SET_ME" >> .env
+	@echo
+	@echo "Some variables need to be set manually in the .env file"
 
 bump:
 	npm version patch
