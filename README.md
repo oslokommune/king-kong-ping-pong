@@ -1,8 +1,8 @@
 # King Kong Ping Pong
 
 ## What
-A small service to continously poll itself through an API gateway and notifies a
-Slack webhook if the state changes
+A small service to continously ping itself through an API gateway and notifies a
+Slack webhook if ping fails after numerous attempts.
 
 ## Why
 A need to test a full integration of Kong arose
